@@ -17,27 +17,19 @@ public class PlayfairCipher implements Cipher {
     private final static char REMAIN_CHAR = 'J';
     private final HashMap<Character, Integer> CHARS_X;
     private final HashMap<Character, Integer> CHARS_Y;
-    private Operation encryptOperation;
-    private Operation decryptOperation;
 
     public PlayfairCipher() {
         CHARS_X = new HashMap<> (26);
         CHARS_Y = new HashMap<> (26);
-        encryptOperation = (x, y, sameLine) -> {
-            if (sameLine) {
-                return SHEET[x][(y + 1) % 5];
-            } else {
-                return SHEET[(x + 1) % 5][y];
-            }
-        };
-        decryptOperation = (x, y, sameLine) -> {
-            if (sameLine) {
-                return SHEET[x][(y + 4) % 5];
-            } else {
-                return SHEET[(x + 4) % 5][y];
-            }
-        };
         buildIndex ();
+    }
+
+    private char moveLR(int x, int y, int offset) {
+        return SHEET[x][(y + offset) % 5];
+    }
+
+    private char moveUD(int x, int y, int offset) {
+        return SHEET[(x + offset) % 5][y];
     }
 
     private void buildIndex() {
@@ -55,15 +47,15 @@ public class PlayfairCipher implements Cipher {
 
     @Override
     public String encrypt(String plain) {
-        return crypt (plain, encryptOperation);
+        return crypt (plain, 1);
     }
 
     @Override
     public String decrypt(String cipher) {
-        return crypt (cipher, decryptOperation);
+        return crypt (cipher, 4);
     }
 
-    private String crypt(String s, Operation operation) {
+    private String crypt(String s, int offset) {
         StringBuilder builder = StringUtil.pickup (s.toUpperCase (), 'A', 'Z');
         for (int i = 0; i < builder.length () - 1; i += 3) {
             if (builder.charAt (i) == builder.charAt (i + 1))
@@ -82,23 +74,20 @@ public class PlayfairCipher implements Cipher {
             y1 = CHARS_Y.get (char1);
             x2 = CHARS_X.get (char2);
             y2 = CHARS_Y.get (char2);
-            if (x1 != x2 && y1 != y2) {
+            if (x1 == x2) {
+                charEncrypt1 = moveLR (x1, y1, offset);
+                charEncrypt2 = moveLR (x2, y2, offset);
+            } else if (y1 == y2) {
+                charEncrypt1 = moveUD (x1, y1, offset);
+                charEncrypt2 = moveUD (x2, y2, offset);
+            } else {
                 charEncrypt1 = SHEET[x1][y2];
                 charEncrypt2 = SHEET[x2][y1];
-            } else {
-                charEncrypt1 = operation.operation (x1, y1, x1 == x2);
-                charEncrypt2 = operation.operation (x2, y2, x1 == x2);
             }
             builder.setCharAt (i, charEncrypt1);
             builder.setCharAt (i + 1, charEncrypt2);
         }
         return builder.toString ();
-    }
-
-    @FunctionalInterface
-    private interface Operation {
-
-        char operation(int x, int y, boolean sameLine);
     }
 
 }
