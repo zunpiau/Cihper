@@ -6,6 +6,8 @@ import java.util.HashMap;
 
 public class PlayfairCipher implements Cipher {
 
+    private final static char APPEND_CHAR = 'K';
+    private final static char REMAIN_CHAR = 'J';
     private final char[][] SHEET = {
             {'M', 'O', 'N', 'A', 'R'},
             {'C', 'H', 'Y', 'B', 'D'},
@@ -13,8 +15,6 @@ public class PlayfairCipher implements Cipher {
             {'L', 'P', 'Q', 'S', 'T'},
             {'U', 'V', 'W', 'X', 'Z'}
     };
-    private final static char APPEND_CHAR = 'K';
-    private final static char REMAIN_CHAR = 'J';
     private final HashMap<Character, Integer> CHARS_X;
     private final HashMap<Character, Integer> CHARS_Y;
 
@@ -22,27 +22,6 @@ public class PlayfairCipher implements Cipher {
         CHARS_X = new HashMap<> (26);
         CHARS_Y = new HashMap<> (26);
         buildIndex ();
-    }
-
-    private char moveLR(int x, int y, int offset) {
-        return SHEET[x][(y + offset) % 5];
-    }
-
-    private char moveUD(int x, int y, int offset) {
-        return SHEET[(x + offset) % 5][y];
-    }
-
-    private void buildIndex() {
-        char[] chars;
-        for (int j = 0; j < SHEET.length; j++) {
-            chars = SHEET[j];
-            for (int k = 0; k < chars.length; k++) {
-                CHARS_X.put (chars[k], j);
-                CHARS_Y.put (chars[k], k);
-            }
-        }
-        CHARS_X.put (REMAIN_CHAR, CHARS_X.get ('I'));
-        CHARS_Y.put (REMAIN_CHAR, CHARS_Y.get ('I'));
     }
 
     @Override
@@ -88,6 +67,27 @@ public class PlayfairCipher implements Cipher {
             builder.setCharAt (i + 1, charEncrypt2);
         }
         return builder.toString ();
+    }
+
+    private char moveLR(int x, int y, int offset) {
+        return SHEET[x][(y + offset) % 5];
+    }
+
+    private char moveUD(int x, int y, int offset) {
+        return SHEET[(x + offset) % 5][y];
+    }
+
+    private void buildIndex() {
+        char[] chars;
+        for (int j = 0; j < SHEET.length; j++) {
+            chars = SHEET[j];
+            for (int k = 0; k < chars.length; k++) {
+                CHARS_X.put (chars[k], j);
+                CHARS_Y.put (chars[k], k);
+            }
+        }
+        CHARS_X.put (REMAIN_CHAR, CHARS_X.get ('I'));
+        CHARS_Y.put (REMAIN_CHAR, CHARS_Y.get ('I'));
     }
 
 }
