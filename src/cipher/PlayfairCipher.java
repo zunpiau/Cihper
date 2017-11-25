@@ -21,7 +21,7 @@ public class PlayfairCipher implements Cipher {
     }
 
     public void setKeyword(String keyword) {
-        this.keyword = keyword;
+        this.keyword = keyword.toUpperCase ();
         buildAlphaBet ();
     }
 
@@ -92,17 +92,18 @@ public class PlayfairCipher implements Cipher {
     }
 
     private void buildAlphaBet() {
-        StringBuilder builder = new StringBuilder (keyword.length () + 26);
-        builder.append (StringUtil.pickup (keyword.toUpperCase (), 'A', 'Z'));
-        builder.append ("ABCDEFGHIKLMNOPQRSTUVWXYZ");
-        char c;
+        String alpha = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+        char[] chars = new char[keyword.length () + 25];
+        int[] flags = new int[26];
+        keyword.getChars (0, keyword.length (), chars, 0);
+        alpha.getChars (0, alpha.length (), chars, keyword.length ());
         int count = 0;
-        for (int i = 0; i < builder.length (); i++) {
-            c = builder.charAt (i);
-            if (builder.indexOf ("" + c) != i)
-                continue;
-            SHEET[count / 5][count % 5] = c;
-            count++;
+        for (char c : chars) {
+            if (c >= 'A' && c <= 'Z' && c != REMAIN_CHAR && flags[c - 'A'] == 0) {
+                SHEET[count / 5][count % 5] = c;
+                flags[c - 'A'] = 1;
+                count++;
+            }
         }
         buildAlphaIndex ();
     }
