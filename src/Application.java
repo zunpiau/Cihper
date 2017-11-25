@@ -10,14 +10,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 
-import static java.awt.Component.CENTER_ALIGNMENT;
-
 public class Application {
 
     private static String[] method = new String[]{"CaesarCipher", "PlayfairCipher", "HillCipher"};
-    private static Cipher[] ciphers = new Cipher[]{new CaesarCipher (3),
-            new PlayfairCipher (),
-            new HillCipher ()};
+    private static CaesarCipher caesarCipher = new CaesarCipher (3);
+    private static PlayfairCipher playfairCipher = new PlayfairCipher ("monarchy");
+    private static HillCipher hillCipher = new HillCipher ();
+    private static Cipher[] ciphers = new Cipher[]{caesarCipher, playfairCipher, hillCipher};
 
     public static void main(String[] args) {
 
@@ -31,23 +30,46 @@ public class Application {
         plainTextArea.setLineWrap (true);
         plainTextArea.setWrapStyleWord (true);
 
+        JLabel caesarParamLabel = new JLabel ("Offset of Caesar: ", JLabel.LEFT);
+        SpinnerModel model = new SpinnerNumberModel (3, 1, 25, 1);
+        JSpinner caesarParamSpinner = new JSpinner (model);
+        caesarParamSpinner.setEditor (new JSpinner.DefaultEditor (caesarParamSpinner));
+        caesarParamSpinner.addChangeListener (e -> caesarCipher.setOffset ((Integer) caesarParamSpinner.getValue ()));
+
+        JLabel playfairParamLabel = new JLabel ("Keyword of Playfair: ", JLabel.LEFT);
+        JTextField playfairParamTextField = new JFormattedTextField ("monarchy");
+        playfairParamTextField.addActionListener (e -> playfairCipher.setKeyword (playfairParamTextField.getText ()));
+
         JComboBox<String> methodComboBox = new JComboBox<> (method);
-        methodComboBox.setAlignmentX (CENTER_ALIGNMENT);
-        methodComboBox.setMaximumSize (methodComboBox.getPreferredSize ());
 
         JButton encryptButton = new JButton ();
-        encryptButton.setAlignmentX (CENTER_ALIGNMENT);
-
         JButton decryptButton = new JButton ();
-        decryptButton.setAlignmentX (CENTER_ALIGNMENT);
 
         JPanel controlPanel = new JPanel ();
-        controlPanel.setLayout (new BoxLayout (controlPanel, BoxLayout.Y_AXIS));
-        controlPanel.add (methodComboBox);
-        controlPanel.add (Box.createVerticalStrut (8));
-        controlPanel.add (encryptButton);
-        controlPanel.add (Box.createVerticalStrut (8));
-        controlPanel.add (decryptButton);
+        controlPanel.setLayout (new GridBagLayout ());
+        GridBagConstraints constraints = new GridBagConstraints ();
+
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.WEST;
+        controlPanel.add (caesarParamLabel, constraints);
+        constraints.gridy = 2;
+        controlPanel.add (caesarParamSpinner, constraints);
+        constraints.gridy = 3;
+        constraints.insets = new Insets (8, 0, 0, 0);
+        controlPanel.add (playfairParamLabel, constraints);
+        constraints.insets = new Insets (0, 0, 0, 0);
+        constraints.gridy = 4;
+        controlPanel.add (playfairParamTextField, constraints);
+        constraints.gridy = 5;
+        constraints.insets = new Insets (32, 0, 0, 0);
+        controlPanel.add (methodComboBox, constraints);
+        constraints.insets = new Insets (8, 0, 0, 0);
+        constraints.gridy = 6;
+        controlPanel.add (encryptButton, constraints);
+        constraints.gridy = 7;
+        controlPanel.add (decryptButton, constraints);
         controlPanel.setBorder (new EmptyBorder (72, 8, 72, 8));
         controlPanel.setMaximumSize (new Dimension (controlPanel.getPreferredSize ().width, 1080));
 

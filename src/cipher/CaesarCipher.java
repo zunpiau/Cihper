@@ -2,14 +2,18 @@ package cipher;
 
 public class CaesarCipher implements Cipher {
 
-    private int offset = 3;
-    private Operation encryptOperation;
-    private Operation decryptOperation;
+    private final Operation encryptOperation;
+    private final Operation decryptOperation;
+    private int offset;
 
     public CaesarCipher(int offset) {
         this.offset = offset;
-        encryptOperation = c -> (char) ((c - 'a' + offset) % 26 + 'A');
-        decryptOperation = c -> (char) ((c - 'A' - offset + 26) % 26 + 'a');
+        encryptOperation = c -> (char) ((c - 'a' + this.offset) % 26 + 'A');
+        decryptOperation = c -> (char) ((c - 'A' - this.offset + 26) % 26 + 'a');
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     @Override
@@ -33,9 +37,9 @@ public class CaesarCipher implements Cipher {
         return new String (chars);
     }
 
-    private  interface Operation {
+    private interface Operation {
 
-         char operate(char c);
+        char operate(char c);
     }
 
 }

@@ -8,20 +8,21 @@ public class PlayfairCipher implements Cipher {
 
     private final static char APPEND_CHAR = 'K';
     private final static char REMAIN_CHAR = 'J';
-    private final char[][] SHEET = {
-            {'M', 'O', 'N', 'A', 'R'},
-            {'C', 'H', 'Y', 'B', 'D'},
-            {'E', 'F', 'G', 'I', 'K'},
-            {'L', 'P', 'Q', 'S', 'T'},
-            {'U', 'V', 'W', 'X', 'Z'}
-    };
     private final HashMap<Character, Integer> CHARS_X;
     private final HashMap<Character, Integer> CHARS_Y;
+    private char[][] SHEET;
+    private String keyword;
 
-    public PlayfairCipher() {
+    public PlayfairCipher(String keyword) {
+        SHEET = new char[5][5];
         CHARS_X = new HashMap<> (26);
         CHARS_Y = new HashMap<> (26);
-        buildIndex ();
+        setKeyword (keyword);
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+        buildAlphaBet ();
     }
 
     @Override
@@ -77,7 +78,7 @@ public class PlayfairCipher implements Cipher {
         return SHEET[(x + offset) % 5][y];
     }
 
-    private void buildIndex() {
+    private void buildAlphaIndex() {
         char[] chars;
         for (int j = 0; j < SHEET.length; j++) {
             chars = SHEET[j];
@@ -88,6 +89,22 @@ public class PlayfairCipher implements Cipher {
         }
         CHARS_X.put (REMAIN_CHAR, CHARS_X.get ('I'));
         CHARS_Y.put (REMAIN_CHAR, CHARS_Y.get ('I'));
+    }
+
+    private void buildAlphaBet() {
+        StringBuilder builder = new StringBuilder (keyword.length () + 26);
+        builder.append (StringUtil.pickup (keyword.toUpperCase (), 'A', 'Z'));
+        builder.append ("ABCDEFGHIKLMNOPQRSTUVWXYZ");
+        char c;
+        int count = 0;
+        for (int i = 0; i < builder.length (); i++) {
+            c = builder.charAt (i);
+            if (builder.indexOf ("" + c) != i)
+                continue;
+            SHEET[count / 5][count % 5] = c;
+            count++;
+        }
+        buildAlphaIndex ();
     }
 
 }
