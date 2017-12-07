@@ -5,21 +5,38 @@ import misc.StringUtil;
 
 public class HillCipher implements Cipher {
 
-    private int[][] keys = new int[][]{
-            {17, 17, 5},
-            {21, 18, 21},
-            {2, 2, 19}
-    };
+    private int[][] key;
     private int[][] inverse;
+    private String keyStr;
 
-    public HillCipher() {
-        ModMatrix modMatrix = new ModMatrix (keys);
-        inverse = modMatrix.inverse (modMatrix).getIntegerData ();
+    public HillCipher(String key) {
+        this.key = new int[3][3];
+        setKey (key);
+    }
+
+    public String getKey() {
+        return keyStr;
+    }
+
+    public void setKey(String key) {
+        try {
+            String[] s = key.split (",");
+            for (int i = 0; i < 9; i++) {
+                this.key[i / 3][i % 3] = Integer.parseInt (s[i]);
+            }
+            ModMatrix modMatrix = new ModMatrix (this.key);
+            inverse = modMatrix.inverse (modMatrix).getIntegerData ();
+            keyStr = key;
+        } catch (NumberFormatException | ArithmeticException e) {
+            setKey (keyStr);
+            throw new IllegalArgumentException ("Illegal key");
+        }
+
     }
 
     @Override
     public String encrypt(String plain) {
-        return crypt (plain, keys);
+        return crypt (plain, key);
     }
 
     @Override
