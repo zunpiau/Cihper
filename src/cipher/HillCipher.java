@@ -5,16 +5,16 @@ import misc.StringUtil;
 
 public class HillCipher implements Cipher {
 
-    private final double[][] keys = new double[][]{
+    private int[][] keys = new int[][]{
             {17, 17, 5},
             {21, 18, 21},
             {2, 2, 19}
     };
-    private double[][] inverse;
+    private int[][] inverse;
 
     public HillCipher() {
         ModMatrix modMatrix = new ModMatrix (keys);
-        inverse = modMatrix.inverse (modMatrix).getDoubleData ();
+        inverse = modMatrix.inverse (modMatrix).getIntegerData ();
     }
 
     @Override
@@ -27,7 +27,7 @@ public class HillCipher implements Cipher {
         return crypt (cipher, inverse).toLowerCase ();
     }
 
-    private String crypt(String s, double[][] matrix) {
+    private String crypt(String s, int[][] matrix) {
         StringBuilder builder = StringUtil.pickup (s.toUpperCase (), 'A', 'Z');
         int mod = builder.length () % 3;
         if (mod == 1)
@@ -38,7 +38,7 @@ public class HillCipher implements Cipher {
         for (int i = 0; i < builder.length () - 2; i += 4) {
             group = toChars (
                     matrixMultiply (
-                            new double[]{builder.charAt (i) - 'A',
+                            new int[]{builder.charAt (i) - 'A',
                                     builder.charAt (i + 1) - 'A',
                                     builder.charAt (i + 2) - 'A'},
                             matrix));
@@ -50,7 +50,7 @@ public class HillCipher implements Cipher {
         return builder.toString ();
     }
 
-    private char[] toChars(double[] ints) {
+    private char[] toChars(int[] ints) {
         char[] chars = new char[ints.length];
         for (int i = 0; i < ints.length; i++) {
             chars[i] = (char) (ints[i] % 26 + 'A');
@@ -58,8 +58,8 @@ public class HillCipher implements Cipher {
         return chars;
     }
 
-    private double[] matrixMultiply(double[] column, double[][] matrix) {
-        double[] result = new double[column.length];
+    private int[] matrixMultiply(int[] column, int[][] matrix) {
+        int[] result = new int[column.length];
         for (int i = 0; i < column.length; i++) {
             for (int j = 0; j < matrix.length; j++) {
                 result[i] += column[j] * matrix[i][j];

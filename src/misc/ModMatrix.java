@@ -13,11 +13,11 @@ public class ModMatrix {
     private BigInteger[][] data;
     private final BigInteger mod = new BigInteger ("26");
 
-    public ModMatrix(double[][] dat) {
+    public ModMatrix(int[][] dat) {
         this.data = new BigInteger[dat.length][dat[0].length];
         for (int i = 0; i < dat.length; i++) {
             for (int i1 = 0; i1 < dat[i].length; i1++) {
-                this.data[i][i1] = new BigInteger (((int) dat[i][i1]) + "");
+                this.data[i][i1] = new BigInteger (( dat[i][i1]) + "");
             }
         }
         this.nrows = dat.length;
@@ -38,11 +38,11 @@ public class ModMatrix {
         return ncols;
     }
 
-    public double[][] getDoubleData() {
-        double[][] doubles = new double[data.length][data[0].length];
+    public int[][] getIntegerData() {
+        int[][] doubles = new int[data.length][data[0].length];
         for (int i = 0; i < data.length; i++) {
             for (int i1 = 0; i1 < data[i].length; i1++) {
-                doubles[i][i1] = data[i][i1].doubleValue ();
+                doubles[i][i1] = data[i][i1].intValue ();
             }
         }
         return doubles;
