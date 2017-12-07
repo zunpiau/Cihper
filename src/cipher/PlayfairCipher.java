@@ -32,7 +32,7 @@ public class PlayfairCipher implements Cipher {
 
     @Override
     public String decrypt(String cipher) {
-        return crypt (cipher, 4);
+        return crypt (cipher, 4).toLowerCase ();
     }
 
     private String crypt(String s, int offset) {

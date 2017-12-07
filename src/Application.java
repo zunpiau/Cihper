@@ -9,14 +9,16 @@ import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
+import java.util.Locale;
 
 public class Application {
 
     private static String[] method = new String[]{"CaesarCipher", "PlayfairCipher", "HillCipher"};
     private static CaesarCipher caesarCipher = new CaesarCipher (3);
     private static PlayfairCipher playfairCipher = new PlayfairCipher ("monarchy");
-    private static HillCipher hillCipher = new HillCipher ();
+    private static HillCipher hillCipher = new HillCipher ("17,17,5,21,18,21,2,2,19");
     private static Cipher[] ciphers = new Cipher[]{caesarCipher, playfairCipher, hillCipher};
+
 
     public static void main(String[] args) {
 
@@ -25,6 +27,8 @@ public class Application {
     }
 
     private static void createAndShowGUI() {
+
+        JFrame frame = new JFrame ("cipher.Cipher");
 
         JTextArea plainTextArea = new JTextArea (8, 24);
         plainTextArea.setLineWrap (true);
@@ -37,7 +41,11 @@ public class Application {
         caesarParamSpinner.addChangeListener (e -> caesarCipher.setOffset ((Integer) caesarParamSpinner.getValue ()));
 
         JLabel playfairParamLabel = new JLabel ("Keyword of Playfair: ", JLabel.LEFT);
-        JTextField playfairParamTextField = new JFormattedTextField ("monarchy");
+        JTextField playfairParamTextField = new JTextField ("monarchy");
+        playfairParamTextField.addActionListener (e -> playfairCipher.setKeyword (playfairParamTextField.getText ()));
+
+        JLabel hillParamLabel = new JLabel ("Key of Hill: ", JLabel.LEFT);
+        JButton hillParamButton = new JButton ("CHANGE");
         playfairParamTextField.addActionListener (e -> playfairCipher.setKeyword (playfairParamTextField.getText ()));
 
         JComboBox<String> methodComboBox = new JComboBox<> (method);
@@ -54,21 +62,30 @@ public class Application {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.WEST;
         controlPanel.add (caesarParamLabel, constraints);
-        constraints.gridy = 2;
+        constraints.gridy++;
         controlPanel.add (caesarParamSpinner, constraints);
-        constraints.gridy = 3;
-        constraints.insets = new Insets (8, 0, 0, 0);
+
+        constraints.gridy++;
+        constraints.insets = new Insets (16, 0, 0, 0);
         controlPanel.add (playfairParamLabel, constraints);
         constraints.insets = new Insets (0, 0, 0, 0);
-        constraints.gridy = 4;
+        constraints.gridy++;
         controlPanel.add (playfairParamTextField, constraints);
-        constraints.gridy = 5;
+
+        constraints.gridy++;
+        constraints.insets = new Insets (16, 0, 0, 0);
+        controlPanel.add (hillParamLabel, constraints);
+        constraints.gridy++;
+        constraints.insets = new Insets (0, 0, 0, 0);
+        controlPanel.add (hillParamButton, constraints);
+
+        constraints.gridy++;
         constraints.insets = new Insets (32, 0, 0, 0);
         controlPanel.add (methodComboBox, constraints);
         constraints.insets = new Insets (8, 0, 0, 0);
-        constraints.gridy = 6;
+        constraints.gridy++;
         controlPanel.add (encryptButton, constraints);
-        constraints.gridy = 7;
+        constraints.gridy++;
         controlPanel.add (decryptButton, constraints);
         controlPanel.setBorder (new EmptyBorder (72, 8, 72, 8));
         controlPanel.setMaximumSize (new Dimension (controlPanel.getPreferredSize ().width, 1080));
@@ -93,6 +110,27 @@ public class Application {
             }
         });
         decryptButton.setText ("<< Decrypt");
+        hillParamButton.setAction (new AbstractAction () {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object input = JOptionPane.showInputDialog (frame,
+                        "input nine numbers separated by ','",
+                        "Key",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        hillCipher.getKey ());
+                if (input != null && !hillCipher.getKey ().equals (input)) {
+                    try {
+                        hillCipher.setKey (String.valueOf (input));
+                    } catch (IllegalArgumentException exception) {
+                        JOptionPane.showMessageDialog (frame,
+                                exception.getMessage ());
+                    }
+                }
+            }
+        });
+        hillParamButton.setText ("CHANGE");
 
         JPanel mainPanel = new JPanel ();
         mainPanel.setLayout (new BoxLayout (mainPanel, BoxLayout.X_AXIS));
@@ -100,7 +138,6 @@ public class Application {
         mainPanel.add (controlPanel);
         mainPanel.add (new JScrollPane (cipherTestArea));
 
-        JFrame frame = new JFrame ("cipher.Cipher");
         frame.setDefaultCloseOperation (WindowConstants.EXIT_ON_CLOSE);
         frame.setContentPane (mainPanel);
         frame.setMinimumSize (new Dimension (frame.getPreferredSize ().width + 32,
@@ -121,6 +158,7 @@ public class Application {
     private static void setSystemProperty() {
         System.setProperty ("awt.useSystemAAFontSettings", "on");
         System.setProperty ("swing.aatext", "true");
+        Locale.setDefault (Locale.ENGLISH);
         JFrame.setDefaultLookAndFeelDecorated (false);
         FontUIResource fontRes = new FontUIResource (new Font ("Source Code Pro", Font.PLAIN, 16));
         for (Enumeration<Object> keys = UIManager.getDefaults ().keys ();
